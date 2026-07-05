@@ -1,0 +1,7 @@
+node_modules
+backend/src/**/*.test.ts
+frontend/src/**/*.test.ts
+*.md
+!DEPLOYMENT_VERCEL.md
+.git
+.cursor

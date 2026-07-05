@@ -1,0 +1,23 @@
+{
+  "name": "password-manager",
+  "private": true,
+  "engines": {
+    "node": "24.x"
+  },
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev -w frontend",
+    "dev:backend": "npm run dev -w backend",
+    "build": "npm run build -w shared && npm run build -w backend && npm run build -w frontend",
+    "build:shared": "npm run build -w shared",
+    "build:backend": "npm run build -w backend",
+    "build:frontend": "npm run build -w frontend",
+    "test": "npm run test -w backend && npm run test -w frontend",
+    "security:audit": "node scripts/security-audit.mjs",
+    "vercel-build": "npm run build"
+  }
+}

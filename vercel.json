@@ -1,0 +1,17 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "npm install --include=dev",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30,
+      "includeFiles": "backend/dist/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/auth/:path*", "destination": "/api" },
+    { "source": "/vault/:path*", "destination": "/api" },
+    { "source": "/health", "destination": "/api" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
