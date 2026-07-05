@@ -40,18 +40,17 @@ These files are already in the repo (`api/index.js`, `vercel.json`, `.env.vercel
 npm install
 ```
 
-(`serverless-http` is included in the backend workspace.)
-
 ### 2b. Create `api/index.js` (project root)
 
-Already included in the repo. It wraps the Express app for Vercel serverless:
+Already included in the repo. It exports the Express app directly for Vercel's native Express support:
 
 ```javascript
-const serverless = require("serverless-http");
-const { connectDb } = require("../backend/dist/config/db");
 const { app } = require("../backend/dist/app");
-// ...
+
+module.exports = app;
 ```
+
+MongoDB connects via middleware on `/auth` and `/vault` only — `/health` responds instantly without a database call.
 
 ### 2c. Create `vercel.json` (project root)
 
@@ -59,7 +58,7 @@ const { app } = require("../backend/dist/app");
 {
   "buildCommand": "npm run build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "npm install",
+  "installCommand": "npm install --include=dev",
   "rewrites": [
     { "source": "/auth/:path*", "destination": "/api" },
     { "source": "/vault/:path*", "destination": "/api" },
@@ -139,7 +138,15 @@ git push
 
 ## Step 6 — Verify it works
 
-Open your Vercel URL and check:
+First, confirm the API is reachable (should respond in under 1 second):
+
+```
+https://your-app.vercel.app/health
+```
+
+Expected: `{"status":"ok"}`
+
+Then open your Vercel URL and check:
 
 - [ ] Register a new account  
 - [ ] Unlock vault with master password  
@@ -193,6 +200,13 @@ npm run security:audit -- --base https://your-app.vercel.app
 
 - Confirm `vercel.json` has the SPA rewrite to `/index.html`  
 
+### API returns 504 FUNCTION_INVOCATION_TIMEOUT
+
+- Open `https://your-app.vercel.app/health` — must return `{"status":"ok"}` instantly  
+- If `/health` times out, check Vercel function logs  
+- Confirm `MONGODB_URI` starts with `mongodb+srv://` (no quotes or spaces)  
+- Redeploy after changing env vars  
+
 ### API returns 500 on cold start
 
 - Open Vercel → **Deployments → Functions → Logs**  
@@ -237,7 +251,6 @@ You would need:
 ```
 [ ] MongoDB Atlas cluster ready
 [ ] api/index.js + vercel.json in repo (done)
-[ ] serverless-http installed (npm install)
 [ ] CSP updated in index.html (done)
 [ ] Code pushed to Git
 [ ] Vercel project created with env vars (see .env.vercel.example)
